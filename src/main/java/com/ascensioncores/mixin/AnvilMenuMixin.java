@@ -129,7 +129,10 @@ public abstract class AnvilMenuMixin {
         }
 
         // ── C: Trait donation — same item type, both leveled ascension gear ──────────
-        if (GearHelper.isGear(right) && left.getItem() == right.getItem()) {
+        // Vanilla uses the same input shape for durability repair and enchantment
+        // merging. Only treat it as donation when vanilla found no valid result.
+        if (resultSlots.getItem(0).isEmpty()
+                && GearHelper.isGear(right) && left.getItem() == right.getItem()) {
             int rightLevel = GearHelper.getLevel(right);
             if (currentLevel == 0 || rightLevel == 0) {
                 resultSlots.setItem(0, ItemStack.EMPTY);

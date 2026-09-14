@@ -6,6 +6,7 @@ import com.ascensioncores.compat.FarmersDelightCompat;
 import com.ascensioncores.compat.MoreDelightCompat;
 import com.ascensioncores.compat.ProgressionRebornCompat;
 import com.ascensioncores.component.ModComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -13,6 +14,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -227,9 +229,11 @@ public final class GearHelper {
             DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
 
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
-        Set<Identifier> addedModifiers = new HashSet<>();
-        addNonAscensionModifiers(builder, vanilla, addedModifiers);
+        Set<ModifierKey> addedModifiers = new HashSet<>();
+        // The stack component is authoritative: other mods may intentionally
+        // replace a prototype modifier while keeping its attribute and ID.
         addNonAscensionModifiers(builder, current, addedModifiers);
+        addNonAscensionModifiers(builder, vanilla, addedModifiers);
 
         for (int i = 0; i < stats.size(); i++) {
             RolledStat rolled = stats.get(i);
@@ -284,6 +288,21 @@ public final class GearHelper {
         int level = getLevel(stack);
         if (level <= 0) return;
 
+        ItemAttributeModifiers prototype = stack.getPrototype().getOrDefault(
+            DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+        ItemAttributeModifiers current = stack.getOrDefault(
+            DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+        Set<ModifierKey> currentKeys = new HashSet<>();
+        collectNonAscensionModifierKeys(current, currentKeys);
+        for (ItemAttributeModifiers.Entry entry : prototype.modifiers()) {
+            Identifier id = entry.modifier().id();
+            if ("ascensioncores".equals(id.getNamespace())) continue;
+            if (!currentKeys.contains(new ModifierKey(entry.attribute(), id, entry.slot()))) {
+                rebuildAttributes(stack, level, getRolledStats(stack));
+                return;
+            }
+        }
+
         List<RolledStat> stats = getRolledStats(stack);
         for (int i = 0; i < stats.size(); i++) {
             RolledStat rolled = stats.get(i);
@@ -313,15 +332,32 @@ public final class GearHelper {
     private static void addNonAscensionModifiers(
             ItemAttributeModifiers.Builder builder,
             ItemAttributeModifiers modifiers,
-            Set<Identifier> addedModifiers) {
+            Set<ModifierKey> addedModifiers) {
         for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
             Identifier id = entry.modifier().id();
-            if ("ascensioncores".equals(id.getNamespace()) || !addedModifiers.add(id)) {
+            ModifierKey key = new ModifierKey(entry.attribute(), id, entry.slot());
+            if ("ascensioncores".equals(id.getNamespace()) || !addedModifiers.add(key)) {
                 continue;
             }
             builder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
         }
     }
+
+    private static void collectNonAscensionModifierKeys(
+            ItemAttributeModifiers modifiers,
+            Set<ModifierKey> keys) {
+        for (ItemAttributeModifiers.Entry entry : modifiers.modifiers()) {
+            Identifier id = entry.modifier().id();
+            if (!"ascensioncores".equals(id.getNamespace())) {
+                keys.add(new ModifierKey(entry.attribute(), id, entry.slot()));
+            }
+        }
+    }
+
+    private record ModifierKey(
+            Holder<Attribute> attribute,
+            Identifier id,
+            EquipmentSlotGroup slot) {}
 
     // ── Material capacity ───────────────────────────────────────────────────
 

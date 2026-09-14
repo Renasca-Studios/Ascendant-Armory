@@ -135,6 +135,15 @@ levelCoreChestMaxDrop=2
 
 Expected: gear level increases, cost scales by config, and vanilla attributes remain visible.
 
+For same-item durability repair:
+
+1. Damage two items of the same gear type. They may be un-leveled or ascended.
+2. Put them in anvil slots 0 and 1.
+3. Take the repaired result.
+
+Expected: vanilla durability repair remains available. Trait donation only takes over when
+the same-item combination has no valid vanilla result.
+
 For Chaos Core:
 
 1. Put level 1+ gear in anvil slot 0.
@@ -189,3 +198,19 @@ Then run:
 Kill the zombie.
 
 Expected: the enhanced mob can drop Ascension Cores even with no visible gear. For alpha checks, use `Tags:["fkbm.touched","fkbm.alpha"]` and the `betterVanillaMobsAlpha*` config values.
+
+## Automated Headless Game Tests
+
+The normal build launches a dedicated Minecraft GameTest server and verifies same-item
+anvil durability repair, preservation of all Netherite base modifiers, stack-specific
+modifier precedence, and repair of previously missing prototype modifiers:
+
+```powershell
+.\gradlew.bat clean build
+```
+
+Run the same suite against the 26.1.2 backport with:
+
+```powershell
+.\gradlew.bat clean build '-Pminecraft_version=26.1.2' '-Ploader_version=0.19.5' '-Pfabric_api_version=0.149.0+26.1.2' '-Pjei_minecraft_version=26.1.2' '-Pjei_version=29.5.0.26' '-Pminecraft_dependency=~26.1'
+```

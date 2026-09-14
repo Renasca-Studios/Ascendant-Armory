@@ -1,6 +1,7 @@
 # Gradle
 .gradle/
 build/
+releases/
 !gradle/wrapper/gradle-wrapper.jar
 
 # VS Code

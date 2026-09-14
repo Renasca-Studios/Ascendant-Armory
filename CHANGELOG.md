@@ -1,3 +1,12 @@
+## 1.4.1
+
+### Fixed
+- **Anvil durability repair.** Combining matching gear now preserves vanilla durability repair instead of being incorrectly blocked by trait donation handling.
+- **Item attribute preservation.** Ascending gear now retains every original attribute, including Netherite toughness and knockback resistance and attributes supplied by other mods. Existing affected gear is repaired on player login, and stack-specific modifier values remain authoritative over item defaults.
+
+### Changed
+- **Minecraft 26.2 support.** Added a 26.2 build while keeping a separate 26.1.2 backport available.
+
 ## 1.4.0
 
 ### Added

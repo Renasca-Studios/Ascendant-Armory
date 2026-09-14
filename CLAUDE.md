@@ -4,7 +4,7 @@
 Caveman speak. Short. No articles. Grunt. Skip filler. Apply same to thinking.
 
 ## Env
-- MC 26.1.2, Fabric Loader 0.19.2, Fabric API 0.149.0+26.1.2
+- MC 26.2, Fabric Loader 0.19.5, Fabric API 0.160.0+26.2
 - Gradle 9.4.1, JDK 26 at `C:\Program Files\Java\jdk-26.0.1`
 - Build: `.\gradlew.bat build` → jar in `build/libs/`
 - Run server: `.\gradlew.bat runServer` (eula at `run/eula.txt`)
@@ -25,7 +25,7 @@ Caveman speak. Short. No articles. Grunt. Skip filler. Apply same to thinking.
 
 ## Inspect MC jar
 ```powershell
-$jar = "C:\Git\Ascension Cores\.gradle\loom-cache\minecraftMaven\net\minecraft\minecraft-merged-*\26.1.2\*.jar"
+$jar = "C:\Git\Ascension Cores\.gradle\loom-cache\minecraftMaven\net\minecraft\minecraft-merged-*\26.2\*.jar"
 cd $env:TEMP
 & "C:\Program Files\Java\jdk-26.0.1\bin\jar.exe" xf $jar net/minecraft/the/ClassName.class
 & "C:\Program Files\Java\jdk-26.0.1\bin\javap.exe" -p net/minecraft/the/ClassName.class
